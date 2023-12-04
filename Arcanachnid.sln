@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34302.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arcanachnid", "Arcanachnid\Arcanachnid.csproj", "{CBE53DFB-565D-46DE-A0C9-813B5EFF134B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CBE53DFB-565D-46DE-A0C9-813B5EFF134B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBE53DFB-565D-46DE-A0C9-813B5EFF134B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBE53DFB-565D-46DE-A0C9-813B5EFF134B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBE53DFB-565D-46DE-A0C9-813B5EFF134B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {058D7DBB-09A7-429E-9D8E-AB853B3D8A06}
+	EndGlobalSection
+EndGlobal
