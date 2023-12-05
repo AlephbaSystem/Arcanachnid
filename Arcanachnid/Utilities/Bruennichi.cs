@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Arcanachnid.Utilities
 {
-    internal class Argiope : HttpClient
+    internal class Bruennichi : HttpClient
     {
         private Uri _baseUri;
         private RobotsFile _robotsFile;
@@ -15,7 +15,7 @@ namespace Arcanachnid.Utilities
         private DateTime _lastRequestTime;
         private const string DefaultUserAgent = "Arcanachnid"; 
 
-        public Argiope(string baseUrl, TimeSpan rateLimit) : base(new HttpClientHandler(), true)
+        public Bruennichi(string baseUrl, TimeSpan rateLimit) : base(new HttpClientHandler(), true)
         {
             _baseUri = new Uri(baseUrl);
             _rateLimit = rateLimit;
@@ -40,9 +40,9 @@ namespace Arcanachnid.Utilities
             return _robotsFile.IsAllowed(path, userAgent);
         }
 
-        public static async Task<Argiope> CreateAsync(string baseUrl, TimeSpan rateLimit)
+        public static async Task<Bruennichi> CreateAsync(string baseUrl, TimeSpan rateLimit)
         {
-            var client = new Argiope(baseUrl, rateLimit);
+            var client = new Bruennichi(baseUrl, rateLimit);
             await client.InitializeRobotsFile(baseUrl);
             return client;
         }
