@@ -1,2 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Arcanachnid.VBulletin;
+
+Stegodyphus barnamenevis = new Stegodyphus("https://barnamenevis.org");
+await barnamenevis.StartScraping("/");
