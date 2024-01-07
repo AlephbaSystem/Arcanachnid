@@ -1,36 +1,29 @@
-﻿using System;
+﻿using MihaZupan;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Arcanachnid.Onion
 {
-    public class SocksWebRequest : WebRequest
+    public class SocksHttpClient
     {
-        // Implementation that uses a ProxySocket
-    }
+        private readonly HttpClient _httpClient;
 
-    public class SocksWebResponse : WebResponse
-    {
-        // Implementation that reads data from a ProxySocket
-    }
-
-    public class SocksWebClient : WebClient
-    {
-        protected override WebRequest GetWebRequest(Uri address)
+        public SocksHttpClient(string proxyHost, int proxyPort)
         {
-            var request = new SocksWebRequest(address);
-            // Configure the request for SOCKS proxy
-            return request;
+            var proxy = new HttpToSocks5Proxy(proxyHost, proxyPort);
+            var httpClientHandler = new HttpClientHandler { Proxy = proxy };
+
+            _httpClient = new HttpClient(httpClientHandler);
         }
 
-        protected override WebResponse GetWebResponse(WebRequest request)
+        public async Task<string> GetStringAsync(string requestUri)
         {
-            // Get the WebResponse from the SocksWebRequest
-            return new SocksWebResponse(request);
+            return await _httpClient.GetStringAsync(requestUri);
         }
     }
-
 }

@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using Arcanachnid.Utilities;
+using System.Diagnostics;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Arcanachnid.Onion
 {
@@ -10,23 +12,29 @@ namespace Arcanachnid.Onion
         {
             _port = port;
         }
-        public static void Run()
+
+        internal void Run()
         {
+            var torProcesses = Process.GetProcessesByName("tor");
+
+            foreach (var process in torProcesses)
+            {
+                string commandLine = CommandLine.GetCommandLine(process);
+                var match = Regex.Match(commandLine, @"--HTTPTunnelPort (\d+)");
+
+                if (match.Success)
+                {
+                    _port = int.Parse(match.Groups[1].Value);
+                    return;
+                }
+            }
+
             Process.Start("tor.exe", $"--HTTPTunnelPort {_port}");
         }
 
-        public static HttpClient Connect()
+        internal SocksHttpClient Connect()
         {
-            var proxy = new WebProxy($"127.0.0.1:{_port}");
-            proxy.UseDefaultCredentials = true;
-
-            var httpClientHandler = new HttpClientHandler
-            {
-                Proxy = proxy,
-                UseProxy = true,
-            };
-
-            return new HttpClient(httpClientHandler);
+            return new SocksHttpClient("127.0.0.1", _port);
         }
     }
 }
