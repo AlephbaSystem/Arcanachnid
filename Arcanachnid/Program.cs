@@ -1,6 +1,6 @@
-﻿using Arcanachnid.VBulletin;
+﻿using Arcanachnid.Bourse24;
 
-Stegodyphus barnamenevis = new Stegodyphus("https://barnamenevis.org");
-var tmp = await barnamenevis.StartScraping("/");
+var barnamenevis = new Nephila();
+var tmp = await barnamenevis.StartScraping();
 
 _ = tmp;
