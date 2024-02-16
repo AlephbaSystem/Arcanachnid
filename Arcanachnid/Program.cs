@@ -1,6 +1,14 @@
 ﻿using Arcanachnid.Bourse24;
 
-var barnamenevis = new Nephila();
-var tmp = await barnamenevis.StartScraping();
+var spider = new Nephila();
+await spider.StartScraping();
 
-_ = tmp;
+if (spider.IsSaveData())
+{
+    await spider.SaveDatabase();
+}
+
+if (spider.IsSaveData())
+{
+    await spider.SaveDatabase();
+}

@@ -10,6 +10,7 @@
 	<ItemGroup>
 		<PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
 		<PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
+		<PackageReference Include="Neo4j.Driver" Version="5.17.0" />
 		<PackageReference Include="System.Management" Version="7.0.2" />
 	</ItemGroup>
 

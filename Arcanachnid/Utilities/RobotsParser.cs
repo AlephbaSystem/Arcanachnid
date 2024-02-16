@@ -22,48 +22,55 @@ namespace Arcanachnid.Utilities
 
         private RobotsFile ParseRobotsTxt(string content)
         {
-            RobotsFile robotsFile = new RobotsFile();
-            StringReader stringReader = new StringReader(content);
-
-            string line;
-            string currentUserAgent = null;
-
-            while ((line = stringReader.ReadLine()) != null)
+            try
             {
+                RobotsFile robotsFile = new RobotsFile();
+                StringReader stringReader = new StringReader(content);
 
-                if (string.IsNullOrEmpty(line) || line.StartsWith("#"))
-                    continue;
+                string line;
+                string currentUserAgent = null;
 
-                string[] parts = line.Split(new char[] { ':' }, 2);
-                if (parts.Length != 2)
-                    continue;
-
-                string directive = parts[0].Trim().ToLower();
-                string value = parts[1].Trim();
-
-                switch (directive)
+                while ((line = stringReader.ReadLine()) != null)
                 {
-                    case "user-agent":
-                        currentUserAgent = value;
-                        break;
-                    case "disallow":
-                        robotsFile.AddRule(currentUserAgent, value, allow: false);
-                        break;
-                    case "allow":
-                        robotsFile.AddRule(currentUserAgent, value, allow: true);
-                        break;
-                    case "crawl-delay":
-                        if (int.TryParse(value, out int seconds))
-                        {
-                            robotsFile.SetCrawlDelay(currentUserAgent, TimeSpan.FromSeconds(seconds));
-                        }
-                        break;
-                    default:
-                        // Unknown directive, can be safely ignored
-                        break;
+
+                    if (string.IsNullOrEmpty(line) || line.StartsWith("#"))
+                        continue;
+
+                    string[] parts = line.Split(new char[] { ':' }, 2);
+                    if (parts.Length != 2)
+                        continue;
+
+                    string directive = parts[0].Trim().ToLower();
+                    string value = parts[1].Trim();
+
+                    switch (directive)
+                    {
+                        case "user-agent":
+                            currentUserAgent = value;
+                            break;
+                        case "disallow":
+                            robotsFile.AddRule(currentUserAgent, value, allow: false);
+                            break;
+                        case "allow":
+                            robotsFile.AddRule(currentUserAgent, value, allow: true);
+                            break;
+                        case "crawl-delay":
+                            if (int.TryParse(value, out int seconds))
+                            {
+                                robotsFile.SetCrawlDelay(currentUserAgent, TimeSpan.FromSeconds(seconds));
+                            }
+                            break;
+                        default:
+                            // Unknown directive, can be safely ignored
+                            break;
+                    }
                 }
+                return robotsFile;
             }
-            return robotsFile;
+            catch (Exception)
+            {
+                return new RobotsFile();
+            }
         }
     }
 
