@@ -17,12 +17,14 @@ namespace Arcanachnid.Bourse24
         private int totalTasks;
         private int completedTasks;
         private Neo4jDriver neo4jService;
+        private bool batchMode = false;
 
-        public Nephila(string BaseUrl = "https://www.bourse24.ir/articles")
+        public Nephila(string BaseUrl = "https://www.bourse24.ir/articles", bool batchMode = false)
         {
-            baseUrl = BaseUrl;
-            progressBar = new ProgressBar();
-            neo4jService = new Neo4jDriver("bolt://localhost:7687", "neo4j", "password");
+            this.baseUrl = BaseUrl;
+            this.progressBar = new ProgressBar();
+            this.neo4jService = new Neo4jDriver("bolt://localhost:7687", "neo4j", "neo4j");
+            this.batchMode = batchMode;
         }
 
         public bool IsSaveData()
@@ -36,7 +38,7 @@ namespace Arcanachnid.Bourse24
             {
                 if (Contents[item] == 0)
                 {
-                    await neo4jService.AddModelAsync(item);
+                    await neo4jService.AddOrUpdateModelAsync(item);
                 }
                 Contents[item] = 1;
             }
@@ -56,6 +58,18 @@ namespace Arcanachnid.Bourse24
                 return;
 
             visitedUrls.TryAdd(url, 0);
+
+            if (Contents.Where(x => x.Value == 0).Count() > 22)
+            {
+                try
+                {
+                    await SaveDatabase();
+                }
+                catch (Exception ex)
+                {
+                    _ = ex;
+                }
+            }
 
             string docUrl = Url.CorrectUrl(baseUrl, url);
             HtmlDocument doc = await Html.GetHtmlDocument(docUrl);
@@ -110,17 +124,20 @@ namespace Arcanachnid.Bourse24
 
             string docUrl = Url.CorrectUrl(baseUrl, url);
             HtmlDocument doc = await Html.GetHtmlDocument(docUrl);
-
+            if (doc == null)
+            {
+                return;
+            }
             HtmlNodeCollection Nodes = doc.DocumentNode.SelectNodes("//html/body//article//a");
             if (Nodes?.Any(x => x.InnerText.Contains("عضویت و یا ورود به سایت")) == true)
                 return;
 
-            var title = doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/section/div/div/div[1]/h1").InnerText;
-            var date = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[1]").InnerText;
-            var category = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[2]/a").InnerText;
-            var body = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[2]").InnerHtml;
+            var title = doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/section/div/div/div[1]/h1")?.InnerText;
+            var date = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[1]")?.InnerText;
+            var category = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[2]/a")?.InnerText;
+            var body = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[2]")?.InnerHtml;
             var reference =  doc.DocumentNode.SelectNodes("//article/p/a");
-            var canonical = doc.DocumentNode.SelectSingleNode("/html/head/link[3]").GetAttributeValue("href", "");
+            var canonical = doc.DocumentNode.SelectSingleNode("/html/head/link[3]")?.GetAttributeValue("href", "");
             var rlist = new List<(string, string)>();
             if (reference != null)
             {
@@ -138,7 +155,8 @@ namespace Arcanachnid.Bourse24
                     tlist.Add(item.InnerText);
                 }
             }
-            Contents.TryAdd(new GraphNode(title, body, category, docUrl, canonical.Split("/").Last(), date, rlist, tlist), 0);
+            if (title != null && body != null)
+                Contents.TryAdd(new GraphNode(title, body, category, docUrl, canonical.Split("/").Last(), date, rlist, tlist), 0);
         }
     }
 }
