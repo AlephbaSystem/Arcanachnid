@@ -1,5 +1,7 @@
 ﻿using Arcanachnid.Models;
+using Arcanachnid.Utilities;
 using Neo4j.Driver;
+using System.Xml.Linq;
 
 namespace Arcanachnid.Database.Drivers
 {
@@ -12,33 +14,35 @@ namespace Arcanachnid.Database.Drivers
             _driver = GraphDatabase.Driver(uri, AuthTokens.Basic(user, password));
         }
 
-        public async Task AddModelAsync(GraphNode model)
+        public async Task AddOrUpdateModelAsync(GraphNode model)
         {
             var session = _driver.AsyncSession();
             try
             {
                 await session.WriteTransactionAsync(async transaction =>
                 {
-                    var result = await transaction.RunAsync($@"
-                    CREATE (post:Post {{ 
-                        title: $title, 
-                        category: $category, 
-                        body: $body, 
-                        url: $url, 
-                        postId: $postId, 
-                        date: $date 
-                    }})
+                    var result = await transaction.RunAsync(@"
+            MERGE (post:Post { url: $url })
+            ON CREATE SET post.title = $title, 
+                          post.category = $category, 
+                          post.body = $body, 
+                          post.postId = $postId, 
+                          post.date = $date
+            ON MATCH SET post.title = $title, 
+                         post.category = $category, 
+                         post.body = $body, 
+                         post.date = $date 
 
-                    WITH post
-                    UNWIND $tags AS tag
-                    MERGE (t:Tag {{ name: tag }})
-                    MERGE (post)-[:TAGGED_WITH]->(t)
+            WITH post
+            UNWIND $tags AS tag
+            MERGE (t:Tag { name: tag })
+            MERGE (post)-[:TAGGED_WITH]->(t)
 
-                    WITH post
-                    UNWIND $references AS reference
-                    MERGE (r:Reference {{ id: reference.Item1, url: reference.Item2 }})
-                    MERGE (post)-[:REFERENCES]->(r)
-                    ", new
+            WITH post
+            UNWIND $references AS reference
+            MERGE (r:Reference { id: reference.Item1, url: reference.Item2 })
+            MERGE (post)-[:REFERENCES]->(r)
+            ", new
                     {
                         title = model.Title,
                         category = model.Category,
@@ -56,6 +60,7 @@ namespace Arcanachnid.Database.Drivers
                 await session.CloseAsync();
             }
         }
+
 
         public void Dispose()
         {
