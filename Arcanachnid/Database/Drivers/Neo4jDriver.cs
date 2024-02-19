@@ -19,30 +19,36 @@ namespace Arcanachnid.Database.Drivers
             var session = _driver.AsyncSession();
             try
             {
-                await session.WriteTransactionAsync(async transaction =>
+                await session.ExecuteWriteAsync(async transaction =>
                 {
                     var result = await transaction.RunAsync(@"
-            MERGE (post:Post { url: $url })
-            ON CREATE SET post.title = $title, 
-                          post.category = $category, 
-                          post.body = $body, 
-                          post.postId = $postId, 
-                          post.date = $date
-            ON MATCH SET post.title = $title, 
-                         post.category = $category, 
-                         post.body = $body, 
-                         post.date = $date 
+                            MERGE (post:Post { url: $url })
+                            ON CREATE SET post.title = $title, 
+                                          post.body = $body, 
+                                          post.postId = $postId
+                            ON MATCH SET post.title = $title, 
+                                         post.body = $body
 
-            WITH post
-            UNWIND $tags AS tag
-            MERGE (t:Tag { name: tag })
-            MERGE (post)-[:TAGGED_WITH]->(t)
+                            WITH post
+                            UNWIND $categories AS category
+                            MERGE (c:Category { name: category })
+                            MERGE (post)-[:CATEGORIZED_IN]->(c)
 
-            WITH post
-            UNWIND $references AS reference
-            MERGE (r:Reference { id: reference.Item1, url: reference.Item2 })
-            MERGE (post)-[:REFERENCES]->(r)
-            ", new
+                            WITH post
+                            UNWIND $dates AS date
+                            MERGE (d:Date { date: date })
+                            MERGE (post)-[:POSTED_ON]->(d)
+
+                            WITH post
+                            UNWIND $tags AS tag
+                            MERGE (t:Tag { name: tag })
+                            MERGE (post)-[:TAGGED_WITH]->(t)
+
+                            WITH post
+                            UNWIND $references AS reference
+                            MERGE (r:Reference { id: reference.Item1, url: reference.Item2 })
+                            MERGE (post)-[:REFERENCES]->(r)
+                ", new
                     {
                         title = model.Title,
                         category = model.Category,

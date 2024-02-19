@@ -13,12 +13,12 @@ namespace Arcanachnid.Models
         public string Body { get; set; }
         public string Url { get; set; }
         public string PostId { get; set; }
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
         public List<(string, string)> References { get; set; }
         public List<string> Tags { get; set; }
         public List<GraphNode> ChildNodes { get; set; }
 
-        public GraphNode(string title, string body, string category, string url, string postId, string date, List<(string, string)> references, List<string> tags)
+        public GraphNode(string title, string body, string category, string url, string postId, DateTime date, List<(string, string)> references, List<string> tags)
         {
             Title = title;
             Body = body;
