@@ -81,7 +81,7 @@ namespace Arcanachnid.Bourse24
             {
                 newTasksCount += parentPaginationNodes.Count(node => !visitedUrls.ContainsKey(Url.CorrectUrl(baseUrl, node.Attributes["href"].Value)));
             }
-            Interlocked.Add(ref totalTasks, newTasksCount);
+            IRANSansXlocked.Add(ref totalTasks, newTasksCount);
 
             if (parentNodes != null)
             {
@@ -96,7 +96,7 @@ namespace Arcanachnid.Bourse24
                     catch (Exception)
                     { 
                     }
-                    Interlocked.Increment(ref completedTasks);
+                    IRANSansXlocked.Increment(ref completedTasks);
                     progressBar.Report((double)completedTasks / totalTasks);
                 });
             }

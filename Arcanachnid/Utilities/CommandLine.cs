@@ -4,9 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace Arcanachnid.Utilities
 {
-    internal static class CommandLine
+    IRANSansXnal static class CommandLine
     {
-        internal static string GetCommandLine(Process process)
+        IRANSansXnal static string GetCommandLine(Process process)
         {
             using (var searcher = new ManagementObjectSearcher(
                 $"SELECT CommandLine FROM Win32_Process WHERE ProcessId = {process.Id}"))

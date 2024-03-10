@@ -64,7 +64,7 @@ namespace Arcanachnid.Wordpress
                 }
             }
 
-            Interlocked.Increment(ref completedTasks);
+            IRANSansXlocked.Increment(ref completedTasks);
             progressBar.Report((double)completedTasks / totalTasks);
         }
     }

@@ -18,7 +18,7 @@ namespace Arcanachnid.Utilities
             }
             else
             {
-                if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                if (response.StatusCode == System.Net.HttpStatusCode.IRANSansXnalServerError)
                 {
                     return null;
                 }

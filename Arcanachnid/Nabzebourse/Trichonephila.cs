@@ -80,7 +80,7 @@ namespace Arcanachnid.Nabzebourse
             var parentNodes = doc.DocumentNode.SelectNodes("//a[@href]").ToList();
             parentNodes = parentNodes.Where(x => !visitedUrls.ContainsKey(x.Attributes["href"].Value)).ToList();
             int newTasksCount = (parentNodes?.Count ?? 0);
-            Interlocked.Add(ref totalTasks, newTasksCount);
+            IRANSansXlocked.Add(ref totalTasks, newTasksCount);
             if (parentNodes != null)
             {
                 await Parallel.ForEachAsync(parentNodes, async (parentNode, token) =>
@@ -104,7 +104,7 @@ namespace Arcanachnid.Nabzebourse
                         {
                         }
                     }
-                    Interlocked.Increment(ref completedTasks);
+                    IRANSansXlocked.Increment(ref completedTasks);
                     progressBar.Report((double)completedTasks / totalTasks);
                 });
             }

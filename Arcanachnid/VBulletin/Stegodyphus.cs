@@ -39,7 +39,7 @@ namespace Arcanachnid.VBulletin
             HtmlDocument doc = await Html.GetHtmlDocument(docUrl);
             var parentNodes = doc.DocumentNode.SelectNodes("//a[contains(@href, 'forumdisplay')]");
 
-            Interlocked.Increment(ref totalTasks);
+            IRANSansXlocked.Increment(ref totalTasks);
 
             if (parentNodes != null)
             {
@@ -50,7 +50,7 @@ namespace Arcanachnid.VBulletin
 
                     await ScrapeChildPages(childPageUrl);
 
-                    Interlocked.Increment(ref completedTasks);
+                    IRANSansXlocked.Increment(ref completedTasks);
                     progressBar.Report((double)completedTasks / totalTasks);
                 });
             }
