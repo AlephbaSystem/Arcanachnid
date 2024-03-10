@@ -133,7 +133,7 @@ namespace Arcanachnid.Bourse24
 
             var title = doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/section/div/div/div[1]/h1")?.InnerText;
             var idate = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[1]")?.InnerText;
-            var date = Text.ConvertPersian(idate);
+            var date = PersianDateConverter.ConvertPersianToDateTime(idate);
             var category = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[2]/a")?.InnerText;
             var body = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[2]")?.InnerHtml;
             var reference =  doc.DocumentNode.SelectNodes("//article/p/a");
