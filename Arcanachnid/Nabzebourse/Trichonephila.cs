@@ -126,7 +126,7 @@ namespace Arcanachnid.Nabzebourse
           
             var title = doc.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[3]/div/div[1]/h1/a")?.InnerText;
             var idate = doc.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[3]/div/div[1]/div[3]/div[1]/span")?.InnerText;
-            var date = Text.ConvertPersian(idate);
+            var date = PersianDateConverter.ConvertPersianToDateTime(idate);
             var body = doc.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[3]/div/div[1]/div[6]")?.InnerHtml;
             var reference =  doc.DocumentNode.SelectNodes("//html/body/div[2]/div[2]/div[3]/div/div[1]/div[7]/div[2]/div/article/h3/a");
             var canonical = doc.DocumentNode.SelectSingleNode("/html/head/meta[15]")?.GetAttributeValue("content", "");
