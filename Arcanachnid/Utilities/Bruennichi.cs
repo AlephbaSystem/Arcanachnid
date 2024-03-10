@@ -22,8 +22,13 @@ namespace Arcanachnid.Utilities
             _lastRequestTime = DateTime.MinValue;
 
             DefaultRequestHeaders.UserAgent.ParseAdd(DefaultUserAgent);
-
-            InitializeRobotsFile(baseUrl).Wait();
+            try
+            { 
+                InitializeRobotsFile(baseUrl).Wait();
+            }
+            catch (Exception)
+            { 
+            }
         }
 
         private async Task InitializeRobotsFile(string baseUrl)

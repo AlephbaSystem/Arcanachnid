@@ -12,19 +12,6 @@ namespace Arcanachnid.Utilities
 {
     public static class Text
     {
-        public static DateTime ConvertPersian(string persianDateString)
-        {
-            if (string.IsNullOrEmpty(persianDateString)) return DateTime.Now;
-            PersianCalendar pc = new PersianCalendar();
-            string[] parts = persianDateString.Split('/');
-            if (parts.Length < 3)
-                throw new ArgumentException("Invalid Persian date format.");
-            int year = int.Parse(parts[0]);
-            int month = int.Parse(parts[1]);
-            int day = int.Parse(parts[2]);
-            DateTime dateTime = pc.ToDateTime(year, month, day, 0, 0, 0, 0);
-            return dateTime;
-        }
         public static string Normalize(string text)
         {
             string[] lines = text.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
