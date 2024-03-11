@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Arcanachnid.Onion
 {
-    IRANSansXnal static class Port
+    internal static class Port
     {
-        IRANSansXnal static int Run()
+        internal static int Run()
         {
             int startingPort = 49152;
             int endingPort = 65535;
@@ -42,7 +42,7 @@ namespace Arcanachnid.Onion
             Socket socket = null;
             try
             {
-                socket = new Socket(AddressFamily.IRANSansXNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.Bind(new IPEndPoint(IPAddress.Loopback, port));
                 return true;
             }

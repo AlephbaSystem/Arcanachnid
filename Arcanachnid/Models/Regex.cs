@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Arcanachnid.Models
 {
-    IRANSansXnal class Links
+    internal class Links
     {
-        IRANSansXnal class VBulletin
+        internal class VBulletin
         {
             public static string Forum
             {

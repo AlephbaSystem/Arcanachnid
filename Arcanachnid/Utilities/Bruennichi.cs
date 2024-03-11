@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Arcanachnid.Utilities
 {
-    IRANSansXnal class Bruennichi : HttpClient
+    internal class Bruennichi : HttpClient
     {
         private Uri _baseUri;
         private RobotsFile _robotsFile;

@@ -5,15 +5,15 @@ using System.Text.RegularExpressions;
 
 namespace Arcanachnid.Onion
 {
-    IRANSansXnal class Connector
+    internal class Connector
     {
         private static int _port { get; set; }
-        IRANSansXnal Connector(int port)
+        internal Connector(int port)
         {
             _port = port;
         }
 
-        IRANSansXnal void Run()
+        internal void Run()
         {
             var torProcesses = Process.GetProcessesByName("tor");
 
@@ -32,7 +32,7 @@ namespace Arcanachnid.Onion
             Process.Start("tor.exe", $"--HTTPTunnelPort {_port}");
         }
 
-        IRANSansXnal SocksHttpClient Connect()
+        internal SocksHttpClient Connect()
         {
             return new SocksHttpClient("127.0.0.1", _port);
         }

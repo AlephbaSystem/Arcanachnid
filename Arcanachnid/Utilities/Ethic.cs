@@ -2,7 +2,7 @@
 
 namespace Arcanachnid.Utilities
 {
-    IRANSansXnal class Ethic
+    internal class Ethic
     {
         private readonly HttpClient _httpClient = new HttpClient();
         private readonly RobotsParser _robotsParser;
