@@ -3,7 +3,7 @@ using Arcanachnid.Utilities;
 using HtmlAgilityPack;
 using System.Collections.Concurrent;
 
-namespace Arcanachnid.VBulletin
+namespace Arcanachnid.Spiders.VBulletin
 {
     public class Stegodyphus
     {
@@ -105,7 +105,7 @@ namespace Arcanachnid.VBulletin
                         foreach (var paginationNode in childPaginationNodes)
                         {
                             string hrefValue = paginationNode.Attributes["href"].Value;
-                            string nextChildPageUrl = Url.CorrectUrl(baseUrl,hrefValue);
+                            string nextChildPageUrl = Url.CorrectUrl(baseUrl, hrefValue);
                             await ScrapeChildPages(nextChildPageUrl);
                         }
                     }

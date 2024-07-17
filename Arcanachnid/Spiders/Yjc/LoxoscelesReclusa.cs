@@ -2,13 +2,16 @@
 using Arcanachnid.Models;
 using Arcanachnid.Utilities;
 using HtmlAgilityPack;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Arcanachnid.Bourse24
+namespace Arcanachnid.Spiders.Yjc
 {
-    public class Nephila
+    public class LoxoscelesReclusa
     {
         private ProgressBar progressBar;
         private ConcurrentDictionary<string, byte> visitedUrls = new ConcurrentDictionary<string, byte>();
@@ -16,14 +19,14 @@ namespace Arcanachnid.Bourse24
         private readonly string baseUrl;
         private int totalTasks;
         private int completedTasks;
-        private Neo4jDriver neo4jService;
+        private MySqlDriver mysqlService;
         private bool batchMode = false;
 
-        public Nephila(string BaseUrl = "https://www.bourse24.ir/articles", bool batchMode = false)
+        public LoxoscelesReclusa(string BaseUrl = "https://www.yjc.ir/fa/list/6/44?sid=6&catid=44&page=1", bool batchMode = false)
         {
-            this.baseUrl = BaseUrl;
-            this.progressBar = new ProgressBar();
-            this.neo4jService = new Neo4jDriver("bolt://localhost:7687", "neo4j", "neo4j");
+            baseUrl = BaseUrl;
+            progressBar = new ProgressBar();
+            mysqlService = new MySqlDriver("Server=localhost;Database=arcanachnid;Uid=sa;Pwd=!!5O1O95O!!");
             this.batchMode = batchMode;
         }
 
@@ -38,7 +41,7 @@ namespace Arcanachnid.Bourse24
             {
                 if (Contents[item] == 0)
                 {
-                    await neo4jService.AddOrUpdateModelAsync(item);
+                    await mysqlService.AddOrUpdateModelAsync(item);
                 }
                 Contents[item] = 1;
             }
@@ -59,7 +62,7 @@ namespace Arcanachnid.Bourse24
 
             visitedUrls.TryAdd(url, 0);
 
-            if (Contents.Where(x => x.Value == 0).Count() > 100 && batchMode)
+            if (Contents.Where(x => x.Value == 0).Count() > 50 && batchMode)
             {
                 try
                 {
@@ -72,48 +75,45 @@ namespace Arcanachnid.Bourse24
             }
 
             string docUrl = Url.CorrectUrl(baseUrl, url);
-            HtmlDocument doc = await Html.GetHtmlDocument(docUrl);
-            var parentNodes = doc.DocumentNode.SelectNodes("//article/div/h2/a");
-
-            int newTasksCount = (parentNodes?.Count ?? 0);
-            var parentPaginationNodes = doc.DocumentNode.SelectNodes("//html/body/div[1]/div/div[2]/div/div[1]/div[2]/div/ul/li/a");
-            if (parentPaginationNodes != null)
+            if (string.IsNullOrEmpty(docUrl))
             {
-                newTasksCount += parentPaginationNodes.Count(node => !visitedUrls.ContainsKey(Url.CorrectUrl(baseUrl, node.Attributes["href"].Value)));
+                return;
             }
+            HtmlDocument doc = await Html.GetHtmlDocument(docUrl);
+            var parentNodes = doc.DocumentNode.SelectNodes("//a[@href]").ToList();
+            parentNodes = parentNodes.Where(x => !visitedUrls.ContainsKey(x.Attributes["href"].Value)).ToList();
+            int newTasksCount = parentNodes?.Count ?? 0;
             Interlocked.Add(ref totalTasks, newTasksCount);
-
             if (parentNodes != null)
             {
                 await Parallel.ForEachAsync(parentNodes, async (parentNode, token) =>
                 {
                     string hrefValue = parentNode.Attributes["href"].Value;
                     string childPageUrl = Url.CorrectUrl(baseUrl, hrefValue);
-                    try
+                    if (Url.InSameDomain(baseUrl, childPageUrl))
                     {
-                        await ScrapeArticle(childPageUrl);
-                    }
-                    catch (Exception)
-                    { 
+                        try
+                        {
+                            if (hrefValue.Contains("/fa/news/"))
+                            {
+                                await ScrapeArticle(childPageUrl);
+                            }
+                            else
+                            {
+                                await ScrapeArticles(childPageUrl);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _ = ex;
+                        }
                     }
                     Interlocked.Increment(ref completedTasks);
                     progressBar.Report((double)completedTasks / totalTasks);
                 });
             }
-
-            if (parentPaginationNodes != null)
-            {
-                foreach (var paginationNode in parentPaginationNodes)
-                {
-                    string hrefValue = paginationNode.Attributes["href"].Value;
-                    if (!visitedUrls.ContainsKey(Url.CorrectUrl(baseUrl, hrefValue)))
-                    {
-                        await ScrapeArticles(hrefValue);
-                    }
-                }
-            }
         }
-         
+
         private async Task ScrapeArticle(string url)
         {
             if (visitedUrls.ContainsKey(url))
@@ -127,36 +127,42 @@ namespace Arcanachnid.Bourse24
             {
                 return;
             }
-            HtmlNodeCollection Nodes = doc.DocumentNode.SelectNodes("//html/body//article//a");
-            if (Nodes?.Any(x => x.InnerText.Contains("عضویت و یا ورود به سایت")) == true)
-                return;
 
-            var title = doc.DocumentNode.SelectSingleNode("/html/body/div[1]/div/section/div/div/div[1]/h1")?.InnerText;
-            var idate = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[1]")?.InnerText;
-            var date = PersianDateConverter.ConvertPersianToDateTime(idate);
-            var category = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[1]/span[2]/a")?.InnerText;
-            var body = doc.DocumentNode.SelectSingleNode("/html/body/div/div/div[3]/div/div[1]/div/article/div[1]/div[2]")?.InnerHtml;
-            var reference =  doc.DocumentNode.SelectNodes("//article/p/a");
-            var canonical = doc.DocumentNode.SelectSingleNode("/html/head/link[3]")?.GetAttributeValue("href", "");
+            var title = doc.DocumentNode.SelectSingleNode("//span[contains(@class, 'title-news')]")?.InnerText;
+            var idate = doc.DocumentNode.SelectSingleNode("/html/body/div[5]/div/div/div/div[1]/div/div/div/div[1]/div/div/div[2]/div[1]/div[1]/span/span")?.InnerText;
+            var date = PersianDateConverter.ConvertPersianToDateTimeTDYM(idate);
+            var body = doc.DocumentNode.SelectSingleNode("//div[contains(concat(' ', normalize-space(@class), ' '), ' row ') and contains(concat(' ', normalize-space(@class), ' '), ' baznashr-body ')]")?.InnerHtml;
+            var reference = doc.DocumentNode.SelectNodes("//html/body/div[5]/div/div/div/div[1]/div/div/div/div[4]/div/div[1]/div/a");
+            var canonical = doc.DocumentNode.SelectSingleNode("/html/head/link[@rel='amphtml']")?.GetAttributeValue("href", "");
+
             var rlist = new List<(string, string)>();
             if (reference != null)
             {
                 foreach (var item in reference)
                 {
-                    rlist.Add((item.InnerText, item.GetAttributeValue("href", "")));
+                    rlist.Add((item.InnerText.Trim(), item.GetAttributeValue("href", "").Trim()));
                 }
             }
-            var tags = doc.DocumentNode.SelectNodes("//article/div[2]/a");
+            var tags = doc.DocumentNode.SelectNodes("//div[contains(@class, 'path_bottom_body')]//a");
             var tlist = new List<string>();
             if (tags != null)
             {
+                bool skip = true;
                 foreach (var item in tags)
                 {
-                    tlist.Add(item.InnerText);
+                    if (skip)
+                    {
+                        skip = !skip;
+                        continue;
+                    }
+                    tlist.Add(item.InnerText.Trim());
                 }
             }
+            var category = tlist.FirstOrDefault();
             if (title != null && body != null)
                 Contents.TryAdd(new GraphNode(title, body, category, docUrl, canonical.Split("/").Last(), date, rlist, tlist), 0);
+            else
+                _ = 1;
         }
     }
 }

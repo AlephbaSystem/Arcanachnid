@@ -1,7 +1,6 @@
-﻿using Arcanachnid.Bourse24;
-using Arcanachnid.Nabzebourse;
+﻿using Arcanachnid.Spiders.Majlis;
 
-var spider = new Nephila(batchMode: true);
+var spider = new Araneae();
 await spider.StartScraping();
 
 if (spider.IsSaveData())
@@ -12,17 +11,4 @@ if (spider.IsSaveData())
 if (spider.IsSaveData())
 {
     await spider.SaveDatabase();
-}
-
-var spider2 = new Trichonephila(batchMode: true);
-await spider2.StartScraping();
-
-if (spider2.IsSaveData())
-{
-    await spider2.SaveDatabase();
-}
-
-if (spider2.IsSaveData())
-{
-    await spider2.SaveDatabase();
 }

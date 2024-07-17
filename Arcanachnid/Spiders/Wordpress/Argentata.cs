@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Text.Json;
 
-namespace Arcanachnid.Wordpress
+namespace Arcanachnid.Spiders.Wordpress
 {
     public class Argentata
     {
@@ -49,11 +49,11 @@ namespace Arcanachnid.Wordpress
                         string title = item.GetProperty("title").GetProperty("rendered").GetString().Trim();
                         string body = item.GetProperty("content").GetProperty("rendered").GetString().Trim();
                         string link = item.GetProperty("link").GetString().Trim();
-                        int id = item.GetProperty("id").GetInt32();  
-                         
+                        int id = item.GetProperty("id").GetInt32();
+
                         title = Text.Normalize(title);
                         body = Text.Normalize(body);
-                         
+
                         GraphNode node = new GraphNode(title, body, link, id.ToString());
                         Contents.TryAdd(node, 0);
                     }

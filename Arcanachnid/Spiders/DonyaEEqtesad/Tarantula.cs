@@ -10,9 +10,9 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Arcanachnid.Nabzebourse
+namespace Arcanachnid.Spiders.DonyaEEqtesad
 {
-    public class Trichonephila
+    public class Tarantula
     {
         private ProgressBar progressBar;
         private ConcurrentDictionary<string, byte> visitedUrls = new ConcurrentDictionary<string, byte>();
@@ -21,14 +21,18 @@ namespace Arcanachnid.Nabzebourse
         private int totalTasks;
         private int completedTasks;
         private Neo4jDriver neo4jService;
+        private MySqlDriver mysqlService;
         private bool batchMode = false;
+        private bool _mysql = false;
 
-        public Trichonephila(string BaseUrl = "https://www.shahrekhabar.com/", bool batchMode = false)
+        public Tarantula(string BaseUrl = "https://donya-e-eqtesad.com/", bool batchMode = false, bool mysql = false)
         {
-            this.baseUrl = BaseUrl;
-            this.progressBar = new ProgressBar();
-            this.neo4jService = new Neo4jDriver("bolt://localhost:7687", "neo4j", "neo4j");
+            baseUrl = BaseUrl;
+            progressBar = new ProgressBar();
+            neo4jService = new Neo4jDriver("bolt://localhost:7687", "neo4j", "neo4j");
+            mysqlService = new MySqlDriver("Server=localhost;Database=arcanachnid;Uid=sa;Pwd=!!5O1O95O!!;");
             this.batchMode = batchMode;
+            _mysql = mysql;
         }
 
         public bool IsSaveData()
@@ -42,7 +46,14 @@ namespace Arcanachnid.Nabzebourse
             {
                 if (Contents[item] == 0)
                 {
-                    await neo4jService.AddOrUpdateModelAsync(item);
+                    if (_mysql)
+                    {
+                        await mysqlService.AddOrUpdateModelAsync(item);
+                    }
+                    else
+                    {
+                        await neo4jService.AddOrUpdateModelAsync(item);
+                    }
                 }
                 Contents[item] = 1;
             }
@@ -79,7 +90,7 @@ namespace Arcanachnid.Nabzebourse
             HtmlDocument doc = await Html.GetHtmlDocument(docUrl);
             var parentNodes = doc.DocumentNode.SelectNodes("//a[@href]").ToList();
             parentNodes = parentNodes.Where(x => !visitedUrls.ContainsKey(x.Attributes["href"].Value)).ToList();
-            int newTasksCount = (parentNodes?.Count ?? 0);
+            int newTasksCount = parentNodes?.Count ?? 0;
             Interlocked.Add(ref totalTasks, newTasksCount);
             if (parentNodes != null)
             {
@@ -93,7 +104,7 @@ namespace Arcanachnid.Nabzebourse
                         {
                             if (hrefValue.Contains("/news/"))
                             {
-                                await ScrapeArticle(childPageUrl); 
+                                await ScrapeArticle(childPageUrl);
                             }
                             else
                             {
@@ -123,13 +134,13 @@ namespace Arcanachnid.Nabzebourse
             {
                 return;
             }
-          
-            var title = doc.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[3]/div/div[1]/h1/a")?.InnerText;
-            var idate = doc.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[3]/div/div[1]/div[3]/div[1]/span")?.InnerText;
+
+            var title = doc.DocumentNode.SelectSingleNode("//h1[contains(@class, 'title')]")?.InnerText;
+            var idate = doc.DocumentNode.SelectSingleNode("//time[contains(@class, 'news-time')]")?.InnerText;
             var date = PersianDateConverter.ConvertPersianToDateTime(idate);
-            var body = doc.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[3]/div/div[1]/div[6]")?.InnerHtml;
-            var reference =  doc.DocumentNode.SelectNodes("//html/body/div[2]/div[2]/div[3]/div/div[1]/div[7]/div[2]/div/article/h3/a");
-            var canonical = doc.DocumentNode.SelectSingleNode("/html/head/meta[15]")?.GetAttributeValue("content", "");
+            var body = doc.DocumentNode.SelectSingleNode("//div[@id='echo-detail']")?.InnerHtml;
+            var reference = doc.DocumentNode.SelectNodes("//html/body/div[2]/div[2]/div[3]/div/div[1]/div[7]/div[2]/div/article/h3/a");
+            var canonical = doc.DocumentNode.SelectSingleNode("/html/head/link[2]")?.GetAttributeValue("content", "");
             var rlist = new List<(string, string)>();
             if (reference != null)
             {
@@ -138,7 +149,7 @@ namespace Arcanachnid.Nabzebourse
                     rlist.Add((item.InnerText, item.GetAttributeValue("href", "")));
                 }
             }
-            var tags = doc.DocumentNode.SelectNodes("//html/body/div[2]/div[2]/div[3]/div/div[1]/div[9]/div/a");
+            var tags = doc.DocumentNode.SelectNodes("//html/body/div[1]/div[2]/main/div[1]/div[3]/div[1]/div[1]/article/div[3]/div/a");
             var tlist = new List<string>();
             if (tags != null)
             {

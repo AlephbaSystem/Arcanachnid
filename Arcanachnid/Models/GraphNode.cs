@@ -20,11 +20,11 @@ namespace Arcanachnid.Models
 
         public GraphNode(string title, string body, string category, string url, string postId, DateTime date, List<(string, string)> references, List<string> tags)
         {
-            Title = title;
-            Body = body;
-            Url = url;
+            Title = title.Trim();
+            Body = body.Trim();
+            Url = url.Trim();
             Tags = tags;
-            PostId = postId;
+            PostId = postId.Trim();
             Date = date;
             references = references;
             category = category;
@@ -32,10 +32,10 @@ namespace Arcanachnid.Models
         }
         public GraphNode(string title, string body, string url, string postId)
         {
-            Title = title;
-            Body = body;
-            Url = url;
-            PostId = postId;
+            Title = title.Trim();
+            Body = body.Trim();
+            Url = url.Trim();
+            PostId = postId.Trim();
             ChildNodes = new List<GraphNode>();
         }
         public GraphNode()
