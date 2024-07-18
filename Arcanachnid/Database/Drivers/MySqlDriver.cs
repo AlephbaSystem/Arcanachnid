@@ -60,31 +60,12 @@ namespace Arcanachnid.Database.Drivers
                 command.Parameters.AddWithValue("@category", model.Category);
                 command.Parameters.AddWithValue("@date", model.Date.ToString("yyyy-MM-dd"));
 
-                await command.ExecuteNonQueryAsync();
-                //command.Parameters.Clear();
-                //foreach (var tag in model.Tags)
-                //{
-                //    command.CommandText = "INSERT IGNORE INTO tags (name) VALUES (@name);";
-                //    command.Parameters.Clear();
-                //    command.Parameters.AddWithValue("@name", tag);
-                //    await command.ExecuteNonQueryAsync();
-                //    command.Parameters.Clear();
-                //}
-
-                //foreach (var reference in model.References)
-                //{
-                //    command.CommandText = "INSERT INTO references (id, url) VALUES (@id, @url) ON DUPLICATE KEY UPDATE url = VALUES(url);";
-                //    command.Parameters.Clear();
-                //    command.Parameters.AddWithValue("@id", reference.Item1);
-                //    command.Parameters.AddWithValue("@url", reference.Item2);
-                //    await command.ExecuteNonQueryAsync();
-                //    command.Parameters.Clear();
-                //}
-
+                await command.ExecuteNonQueryAsync();  
             }
             catch (Exception ex)
             {
                 _ = ex;
+                throw ex;
             }
             finally
             {
