@@ -15,5 +15,20 @@ namespace Arcanachnid.Utilities
                 return resultUri.ToString();
             return url;
         }
+        public static bool InSameDomain(string baseUrl, string url)
+        {
+            Uri baseUri;
+            Uri resultUri;
+
+            bool baseUriCreated = Uri.TryCreate(baseUrl, UriKind.Absolute, out baseUri);
+            bool resultUriCreated = Uri.TryCreate(url, UriKind.Absolute, out resultUri);
+
+            if (baseUriCreated && resultUriCreated)
+            {
+                return baseUri.Host == resultUri.Host;
+            }
+
+            return false;
+        }
     }
 }

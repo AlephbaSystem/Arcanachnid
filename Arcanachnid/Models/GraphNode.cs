@@ -9,17 +9,33 @@ namespace Arcanachnid.Models
     public class GraphNode
     {
         public string Title { get; set; }
+        public string Category { get; set; }
         public string Body { get; set; }
         public string Url { get; set; }
         public string PostId { get; set; }
+        public DateTime Date { get; set; }
+        public List<(string, string)> References { get; set; }
+        public List<string> Tags { get; set; }
         public List<GraphNode> ChildNodes { get; set; }
 
+        public GraphNode(string title, string body, string category, string url, string postId, DateTime date, List<(string, string)> references, List<string> tags)
+        {
+            Title = title.Trim();
+            Body = body.Trim();
+            Url = url.Trim();
+            Tags = tags;
+            PostId = postId.Trim();
+            Date = date;
+            references = references;
+            category = category;
+            ChildNodes = new List<GraphNode>();
+        }
         public GraphNode(string title, string body, string url, string postId)
         {
-            Title = title;
-            Body = body;
-            Url = url;
-            PostId = postId;
+            Title = title.Trim();
+            Body = body.Trim();
+            Url = url.Trim();
+            PostId = postId.Trim();
             ChildNodes = new List<GraphNode>();
         }
         public GraphNode()
@@ -27,5 +43,4 @@ namespace Arcanachnid.Models
             ChildNodes = new List<GraphNode>();
         }
     }
-
 }

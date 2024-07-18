@@ -1,4 +1,14 @@
-﻿using Arcanachnid.VBulletin;
+﻿using Arcanachnid.Spiders.Majlis;
 
-Stegodyphus barnamenevis = new Stegodyphus("https://barnamenevis.org");
-await barnamenevis.StartScraping("/");
+var spider = new Araneae();
+await spider.StartScraping();
+
+if (spider.IsSaveData())
+{
+    await spider.SaveDatabase();
+}
+
+if (spider.IsSaveData())
+{
+    await spider.SaveDatabase();
+}

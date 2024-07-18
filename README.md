@@ -1,5 +1,5 @@
 # Arcanachnid
-
+![arcanachnid logo](static/logo.jpg)
 
 #Todo
 

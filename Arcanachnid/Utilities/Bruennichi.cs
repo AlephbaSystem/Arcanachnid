@@ -13,7 +13,7 @@ namespace Arcanachnid.Utilities
         private RobotsFile _robotsFile;
         private TimeSpan _rateLimit;
         private DateTime _lastRequestTime;
-        private const string DefaultUserAgent = "Arcanachnid"; 
+        private const string DefaultUserAgent = "Arcanachnid";
 
         public Bruennichi(string baseUrl, TimeSpan rateLimit) : base(new HttpClientHandler(), true)
         {
@@ -22,8 +22,13 @@ namespace Arcanachnid.Utilities
             _lastRequestTime = DateTime.MinValue;
 
             DefaultRequestHeaders.UserAgent.ParseAdd(DefaultUserAgent);
-
-            InitializeRobotsFile(baseUrl).Wait(); // Blocking call in constructor. Consider alternatives for async initialization.
+            try
+            { 
+                InitializeRobotsFile(baseUrl).Wait();
+            }
+            catch (Exception)
+            { 
+            }
         }
 
         private async Task InitializeRobotsFile(string baseUrl)
@@ -36,7 +41,7 @@ namespace Arcanachnid.Utilities
         {
             string path = request.RequestUri.PathAndQuery;
             string userAgent = "Arcanachnid";
-             
+
             return _robotsFile.IsAllowed(path, userAgent);
         }
 

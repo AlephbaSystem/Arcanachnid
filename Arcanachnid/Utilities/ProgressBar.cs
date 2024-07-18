@@ -1,73 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace Arcanachnid.Utilities
 {
     public class ProgressBar : IDisposable
     {
         private const int blockCount = 10;
-        private readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 8);
-        private const string animation = @"/-\";
-        private int animationIndex = 0;
-        private Timer timer;
+        private readonly object lockObject = new object();
+        private bool disposed = false;
+        private Stopwatch stopwatch;
 
         public ProgressBar()
         {
-            timer = new Timer(TimerHandler, null, animationInterval, animationInterval);
+            Console.CursorVisible = false;
+            stopwatch = Stopwatch.StartNew();
         }
 
-        private void TimerHandler(object state)
+        public void Report(double progress)
         {
-            lock (timer)
+            lock (lockObject)
             {
                 if (disposed) return;
 
-                try
-                {
-                    Console.Write(animation[animationIndex++ % animation.Length]);
+                progress = Math.Max(0, Math.Min(1, progress));
+                int progressBlocks = (int)(progress * blockCount);
+                string visualProgress = new string('#', progressBlocks) + new string('-', blockCount - progressBlocks);
 
-                    if (Console.CursorLeft > 0)
-                    {
-                        Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
-                    }
-                }
-                catch (ArgumentOutOfRangeException e)
+                string elapsedTime = FormatElapsedTime(stopwatch.Elapsed);
+
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write($"{elapsedTime} [{visualProgress}] {progress:P1}     ");
+
+                if (progress >= 1)
                 {
-                    // Handle the case where the cursor position is outside the buffer.
+                    Console.CursorVisible = true;
+                    Console.WriteLine();
                 }
             }
         }
- 
-        public void Report(double progress)
-        {
-            progress = Math.Max(0, Math.Min(1, progress));
 
-            int progressBlocks = (int)(progress * blockCount);
-            int emptyBlocks = blockCount - progressBlocks;
-
-            string visualProgress = new string('#', progressBlocks) + new string('-', emptyBlocks);
-
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write($"[{visualProgress}] {progress:P1}");
-
-            if (progress >= 1)
-            {
-                timer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-        }
-
-        private bool disposed = false;
         public void Dispose()
         {
-            lock (timer)
+            lock (lockObject)
             {
-                disposed = true;
-                timer.Dispose();
-                Console.WriteLine();
+                if (!disposed)
+                {
+                    disposed = true;
+                    stopwatch.Stop();
+                    Console.CursorVisible = true;
+                    Console.WriteLine();
+                }
             }
+        }
+
+        private string FormatElapsedTime(TimeSpan elapsed)
+        {
+            return $"{elapsed.Hours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
         }
     }
 }

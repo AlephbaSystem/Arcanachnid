@@ -8,11 +8,23 @@ namespace Arcanachnid.Utilities
         {
             Bruennichi client = await Bruennichi.CreateAsync(url, TimeSpan.FromSeconds(10));
             var response = await client.GetAsync(url);
-            var pageContents = await response.Content.ReadAsStringAsync();
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(pageContents);
+            if (response.IsSuccessStatusCode)
+            {
+                var pageContents = await response.Content.ReadAsStringAsync();
 
-            return doc;
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(pageContents);
+                return doc;
+            }
+            else
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+                {
+                    return null;
+                }
+                await Task.Delay(TimeSpan.FromSeconds(10));
+                return await GetHtmlDocument(url);
+            }
         }
         public static async Task<string> GetJsonString(string url)
         {
